@@ -3,11 +3,13 @@ package main
 
 import (
 	"html/template"
+	"strings"
 	"net/http"
 	"log"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io"
+	"bufio"
 	"io/ioutil"
 	"fmt"
 	"os/exec"
@@ -87,28 +89,34 @@ func loopPlay(channel string){
 
 var cmd *exec.Cmd
 var inPipe io.WriteCloser
-var outPipe io.ReadCloser
+var outPipe *bufio.Reader
 
 func play(cur int , playlist *PlayList) error{
 	mp3 := playlist.Song[cur].Url
 	fmt.Printf("ready to play: %v\n", mp3)
-	loadCmd :="load "+mp3+"\n"
+	loadCmd :="S\nload "+mp3+"\n"
 	fmt.Printf("mpg123 %v\n", loadCmd)
 	_, err := inPipe.Write([]byte(loadCmd))
 	if err !=nil {
 		return err
 	}
 
-	time.Sleep(1 * time.Second / 2)
 	fmt.Printf("ready output....\n")
-	var buf = make([]byte, 1024)
 	for{
-		_, err = outPipe.Read(buf)
+		time.Sleep(1 * time.Second / 2)
+		line,_, err := outPipe.ReadLine()
 		if err !=nil {
 			if err == io.EOF {
+				fmt.Println("eof line: ", string(line))
 				return nil
 			}
+			fmt.Println("err line: ", string(line))
 			return err
+		}
+		fmt.Println(string(line))
+		if strings.HasPrefix(string(line),"@P"){
+			fmt.Println("line: ", string(line))
+			return nil
 		}
 	}
 	return nil
@@ -122,10 +130,11 @@ func startMpg123(){
 		log.Fatal("mpg123 stdin: ", err)
 	}
 
-	outPipe,err =cmd.StdoutPipe()
+	_outPipe,err :=cmd.StdoutPipe()
 	if err !=nil {
 		log.Fatal("mpg123 stdout: ", err)
 	}
+	outPipe =bufio.NewReader(_outPipe)
 	
 	err = cmd.Start()
 	if err != nil {
