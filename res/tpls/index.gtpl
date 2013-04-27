@@ -25,9 +25,18 @@
 		<ul data-role="listview" data-inset="true">
 			<li><a href="music/0.html">我的私人兆赫</a></li>
 			<li><a href="music/1.html">我的红心兆赫</a></li>
-			<li><a href="music/2.html">华语 MHZ</a></li>
-			<li><a href="music/3.html">当想念很透明 MHZ</a></li>
-			<li><a href="music/4.html">巴洛克 MHZ</a></li>
+			<li><a href="music/1.html">华语 MHZ</a></li>
+			<li><a href="music/2.html">欧美 MHZ</a></li>
+			<li><a href="music/4.html">八零 MHZ</a></li>
+			<li><a href="music/6.html">粤语 MHZ</a></li>
+			<li><a href="music/9.html">轻音乐 MHZ</a></li>
+			<li><a href="music/32.html">咖啡音乐 MHZ</a></li>
+			<li><a href="music/94.html">中国好声音 MHZ</a></li>
+			<li><a href="music/27.html">古典 MHZ</a></li>
+			<li><a href="music/1000747.html">古典吉他 MHZ</a></li>
+			<li><a href="music/13.html">Jazz MHZ</a></li>
+			<li><a href="music/8.html">民谣 MHZ</a></li>
+			<li><a href="music/10.html">电影原声 MHZ</a></li>
 		</ul>
 	</div>
     </body>

@@ -13,7 +13,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"os/exec"
-	"time"
+//	"time"
 )
 
 type PlayList struct {
@@ -94,7 +94,7 @@ var outPipe *bufio.Reader
 func play(cur int , playlist *PlayList) error{
 	mp3 := playlist.Song[cur].Url
 	fmt.Printf("ready to play: %v\n", mp3)
-	loadCmd :="S\nload "+mp3+"\n"
+	loadCmd :="load "+mp3+"\n"
 	fmt.Printf("mpg123 %v\n", loadCmd)
 	_, err := inPipe.Write([]byte(loadCmd))
 	if err !=nil {
@@ -103,19 +103,19 @@ func play(cur int , playlist *PlayList) error{
 
 	fmt.Printf("ready output....\n")
 	for{
-		time.Sleep(1 * time.Second / 2)
-		line,_, err := outPipe.ReadLine()
+		_line,_, err := outPipe.ReadLine()
+		line := string(_line)
 		if err !=nil {
 			if err == io.EOF {
-				fmt.Println("eof line: ", string(line))
+				fmt.Println("eof line: ", line)
 				return nil
 			}
-			fmt.Println("err line: ", string(line))
+			fmt.Println("err line: ", line)
 			return err
 		}
-		fmt.Println(string(line))
-		if strings.HasPrefix(string(line),"@P"){
-			fmt.Println("line: ", string(line))
+//		fmt.Println(line)
+		if strings.HasPrefix(line,"@P 0"){
+			fmt.Println("exit line: ", line)
 			return nil
 		}
 	}
@@ -134,8 +134,7 @@ func startMpg123(){
 	if err !=nil {
 		log.Fatal("mpg123 stdout: ", err)
 	}
-	outPipe =bufio.NewReader(_outPipe)
-	
+	outPipe = bufio.NewReader(_outPipe)
 	err = cmd.Start()
 	if err != nil {
 		log.Fatal("start mpg123: ", err)
