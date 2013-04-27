@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"os/exec"
+	"sync/atomic"
 //	"time"
 )
 
@@ -45,9 +46,16 @@ func indexHandler(w http.ResponseWriter, r *http.Request){
 	t.Execute(w, nil)
 }
 
+var curChannel = "unknown"
+var channelVersion int32
+
 func channelHandler(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
-	go loopPlay(vars["channel"])
+	oldChannel := curChannel
+	curChannel = vars["channel"]
+	cv :=atomic.AddInt32(&channelVersion, 1)
+	fmt.Printf("channel will be changed: %v -> %v , new channel version: %v\n", oldChannel, curChannel, cv)
+	go loopPlay(curChannel, cv)
 	t,_ := template.ParseFiles("res/tpls/channel.gtpl")
 	t.Execute(w, nil)
 }
@@ -65,13 +73,17 @@ func loadPlayList(channel string) PlayList{
 	return playlist
 }
 
-func loopPlay(channel string){
+func loopPlay(channel string, cv int32){
 	for {
 		playlist :=loadPlayList(channel)
 		cur :=0
 		size :=len(playlist.Song)
 		if size > 0{
 			for {
+				if channelVersion != cv {
+					fmt.Printf("channel changed: %v -> %v\n", channel, curChannel)
+					goto outter
+				}
 				if cur >= size {
 					break
 				}
