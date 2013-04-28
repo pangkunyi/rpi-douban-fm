@@ -53,6 +53,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request){
 	t.Execute(w, nil)
 }
 func loadAlbumInfo(){
+	if(albumInfoLoaded){
+		return
+	}
 	url := "http://api.douban.com/music/subject/"+curSong.Aid;
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
@@ -61,13 +64,14 @@ func loadAlbumInfo(){
 	body, _ := ioutil.ReadAll(resp.Body)
 	xml.Unmarshal(body, &curSong.AlbumInfo)
 	fmt.Printf("album: %v\n", curSong.AlbumInfo)
+	albumInfoLoaded=true
 }
 
 func songHandler(w http.ResponseWriter, r *http.Request){
-	oldChannelVersion := channelVersion
-	for oldChannelVersion == channelVersion {
+	//oldChannelVersion := channelVersion
+	//for oldChannelVersion == channelVersion {
 		time.Sleep(1 * time.Second)
-	}
+	//}
 	w.Header().Set("Connection", "keep-alive")
 	t,_ := template.ParseFiles("res/tpls/song.gtpl")
 	loadAlbumInfo()
@@ -80,6 +84,7 @@ var playlist PlayList
 var curMusicIdx int
 var curSong Song
 var done chan bool
+var albumInfoLoaded = false
 
 func logStat(){
 	fmt.Printf("stat:\n curChannel: %v\n channelVersion: %v\n curMusicIdx: %v\n curSong: %v\n playlist: %v\n",
@@ -165,6 +170,7 @@ var inPipe io.WriteCloser
 var outPipe *bufio.Reader
 
 func play() error{
+	albumInfoLoaded=false
 	curSong = playlist.Song[curMusicIdx]
 	done <- true
 	curMusicIdx ++
