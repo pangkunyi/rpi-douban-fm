@@ -48,9 +48,20 @@ type AlbumEntry struct {
     Summary string   `xml:"summary"`
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request){
+func backHandler(w http.ResponseWriter, r *http.Request){
 	t,_ := template.ParseFiles("res/tpls/index.gtpl")
 	t.Execute(w, nil)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request){
+	if curChannel == "unknown" {
+		t,_ := template.ParseFiles("res/tpls/index.gtpl")
+		t.Execute(w, nil)
+	}else {
+		t,_ := template.ParseFiles("res/tpls/channel.gtpl")
+		loadAlbumInfo()
+		t.Execute(w, curSong)
+	}
 }
 func loadAlbumInfo(){
 	if(albumInfoLoaded){
@@ -68,11 +79,15 @@ func loadAlbumInfo(){
 }
 
 func songHandler(w http.ResponseWriter, r *http.Request){
-	//oldChannelVersion := channelVersion
-	//for oldChannelVersion == channelVersion {
+	oldSongVersion := songVersion
+	fmt.Println("song handler, ->",oldSongVersion,":",songVersion)
+	for oldSongVersion == songVersion {
+		fmt.Println("sleep 1s, ->",oldSongVersion,":",songVersion)
 		time.Sleep(1 * time.Second)
-	//}
+	}
+	fmt.Println("after, ->",oldSongVersion,":",songVersion)
 	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("cache-control","private, max-age=0")
 	t,_ := template.ParseFiles("res/tpls/song.gtpl")
 	loadAlbumInfo()
 	t.Execute(w, curSong)
@@ -80,6 +95,7 @@ func songHandler(w http.ResponseWriter, r *http.Request){
 
 var curChannel = "unknown"
 var channelVersion int32
+var songVersion int32
 var playlist PlayList
 var curMusicIdx int
 var curSong Song
@@ -87,8 +103,8 @@ var done chan bool
 var albumInfoLoaded = false
 
 func logStat(){
-	fmt.Printf("stat:\n curChannel: %v\n channelVersion: %v\n curMusicIdx: %v\n curSong: %v\n playlist: %v\n",
-		curChannel, channelVersion, curMusicIdx, curSong, playlist)
+	fmt.Printf("stat:\n curChannel: %v\n channelVersion: %v\n songVersion: %v\n curMusicIdx: %v\n curSong: %v\n playlist: %v\n",
+		curChannel, channelVersion, songVersion, curMusicIdx, curSong, playlist)
 }
 
 func togglePauseHandler(w http.ResponseWriter, r *http.Request){
@@ -170,6 +186,7 @@ var inPipe io.WriteCloser
 var outPipe *bufio.Reader
 
 func play() error{
+	atomic.AddInt32(&songVersion, 1)
 	albumInfoLoaded=false
 	curSong = playlist.Song[curMusicIdx]
 	done <- true
@@ -230,6 +247,7 @@ func main(){
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/index.html", indexHandler)
+	r.HandleFunc("/back.html", backHandler)
 	r.HandleFunc("/next.html", nextHandler)
 	r.HandleFunc("/song.html", songHandler)
 	r.HandleFunc("/togglePause.html", togglePauseHandler)

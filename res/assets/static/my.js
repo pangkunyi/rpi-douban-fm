@@ -25,14 +25,17 @@ function loadAlbumInfo(){
 	$.ajax({
 		dataType: "json",
 		url : "/song.html",
-		success: loadAlbumInfoCallback
+		success: loadAlbumInfoCallback,
+		complete: loadAlbumInfo,
+		timeout: 9000000
 	});
 }	
 function loadAlbumInfoCallback(data){
-	$("#songTitle").html(data.title);
-	$("#songPic").html(data.pic);
-	$("#artist").html(data.artist);
-	$("#summary").html(data.summary);
-	loadAlbumInfo();
+	if($("#songPic").attr("src") != data.pic){
+		$("#songTitle").html(data.title);
+		$("#songPic").attr("src",data.pic);
+		$("#artist").html(data.artist);
+		$("#summary").html(data.summary);
+	}
 }
 

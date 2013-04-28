@@ -27,13 +27,13 @@
 		<img style="width: 320px; height: 320px" id="songPic" src="{{.Picture}}">
 	</div>
 	<div data-cid="text1">
-		<pre id="summary">{{.AlbumInfo.Summary}} </pre>	
+		<pre id="summary" style="overflow-wrap: break-word;">{{.AlbumInfo.Summary}} </pre>	
 	</div>
 
 		<div data-role="tabbar" data-iconpos="top" data-theme="a" data-cid="tabbar1" class="ui-footer ui-footer-fixed ui-bar-a ui-navbar ui-mini" role="navigation">
 			<ul class="ui-grid-c">
 				<li class="ui-block-a">
-					<a href="/index.html" data-transition="fade" data-theme="a" data-icon="arrow-l" class="ui-btn ui-btn-inline ui-btn-icon-top ui-btn-up-a" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
+					<a href="/back.html" data-transition="fade" data-theme="a" data-icon="arrow-l" class="ui-btn ui-btn-inline ui-btn-icon-top ui-btn-up-a" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
 						<span class="ui-btn-inner">
 							<span class="ui-btn-text">返回</span>
 							<span class="ui-icon ui-icon-back ui-icon-shadow ui-iconsize-18">&nbsp;</span>
@@ -50,7 +50,7 @@
 					</a>
 				</li>
 				<li class="ui-block-c">
-					<a href="#" onclick="javascript:togglePause()" data-transition="fade" data-theme="a" data-icon="star" class="ui-btn ui-btn-inline ui-btn-icon-top ui-btn-up-a" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
+					<a href="javascript:togglePause();" data-transition="fade" data-theme="a" data-icon="star" class="ui-btn ui-btn-inline ui-btn-icon-top ui-btn-up-a" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
 						<span class="ui-btn-inner">
 							<span id="togglePause" class="ui-btn-text">暂停</span>
 							<span class="ui-icon ui-icon-pause ui-icon-shadow ui-iconsize-18">&nbsp;</span>
@@ -59,7 +59,7 @@
 				</li>
 
 				<li class="ui-block-d">
-					<a href="#" onclick="javascript:next()" data-transition="fade" data-theme="a" data-icon="info" class="ui-btn ui-btn-up-a ui-btn-inline ui-btn-icon-top" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
+					<a href="javascript:next();" data-transition="fade" data-theme="a" data-icon="info" class="ui-btn ui-btn-up-a ui-btn-inline ui-btn-icon-top" data-corners="false" data-shadow="false" data-iconshadow="true" data-iconsize="18" data-wrapperels="span" data-iconpos="top" data-inline="true">
 						<span class="ui-btn-inner">
 							<span class="ui-btn-text">下一首</span>
 							<span class="ui-icon ui-icon-arrow-r ui-icon-shadow ui-iconsize-18">&nbsp;</span>
