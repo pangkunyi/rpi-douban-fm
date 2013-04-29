@@ -2,6 +2,7 @@
 package main
 
 import (
+	"code.google.com/p/go.net/websocket"
 	"html/template"
 	"strings"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"github.com/gorilla/mux"
+	"bytes"
 	"io"
 	"bufio"
 	"io/ioutil"
@@ -78,19 +80,24 @@ func loadAlbumInfo(){
 	albumInfoLoaded=true
 }
 
-func songHandler(w http.ResponseWriter, r *http.Request){
-	oldSongVersion := songVersion
-	fmt.Println("song handler, ->",oldSongVersion,":",songVersion)
-	for oldSongVersion == songVersion {
-		fmt.Println("sleep 1s, ->",oldSongVersion,":",songVersion)
-		time.Sleep(1 * time.Second)
+var songChangeChan = make(chan string)
+func songHandler(ws *websocket.Conn) {
+	for {
+		oldSongVersion := songVersion
+		fmt.Println("song handler, ->",oldSongVersion,":",songVersion)
+		for oldSongVersion == songVersion {
+			time.Sleep(1 * time.Second)
+		}
+		fmt.Println("song version changed, ->",oldSongVersion,":",songVersion)
+		t,_ := template.ParseFiles("res/tpls/song.gtpl")
+		loadAlbumInfo()
+		var msg bytes.Buffer
+		t.Execute(&msg, curSong)
+		if err := websocket.Message.Send(ws, msg.String()); err != nil{
+			fmt.Printf("error send websocket msg: %v\n", msg)
+			break
+		}
 	}
-	fmt.Println("after, ->",oldSongVersion,":",songVersion)
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("cache-control","private, max-age=0")
-	t,_ := template.ParseFiles("res/tpls/song.gtpl")
-	loadAlbumInfo()
-	t.Execute(w, curSong)
 }
 
 var curChannel = "unknown"
@@ -249,7 +256,7 @@ func main(){
 	r.HandleFunc("/index.html", indexHandler)
 	r.HandleFunc("/back.html", backHandler)
 	r.HandleFunc("/next.html", nextHandler)
-	r.HandleFunc("/song.html", songHandler)
+	r.Handle("/song.html", websocket.Handler(songHandler))
 	r.HandleFunc("/togglePause.html", togglePauseHandler)
 	r.HandleFunc("/music/{channel}.html", channelHandler)
 

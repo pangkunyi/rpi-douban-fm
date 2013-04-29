@@ -22,20 +22,26 @@ function next(){
 }
 
 function loadAlbumInfo(){
-	$.ajax({
-		dataType: "json",
-		url : "/song.html",
-		success: loadAlbumInfoCallback,
-		complete: loadAlbumInfo,
-		timeout: 9000000
-	});
+	var wsuri ="ws://"+location.host+"/song.html"
+	sock = new WebSocket(wsuri);
+
+	sock.onopen = function() {
+		console.log("connected to " + wsuri);
+	}
+
+	sock.onclose = function(e) {
+		console.log("connection closed (" + e.code + ")");
+	}
+
+	sock.onmessage = function(e) {
+		console.log("message received: " + e.data);
+		loadAlbumInfoCallback(eval(e.data));
+	}
 }	
 function loadAlbumInfoCallback(data){
-	if($("#songPic").attr("src") != data.pic){
-		$("#songTitle").html(data.title);
-		$("#songPic").attr("src",data.pic);
-		$("#artist").html(data.artist);
-		$("#summary").html(data.summary);
-	}
+	$("#songTitle").html(data.title);
+	$("#songPic").attr("src",data.pic);
+	$("#artist").html(data.artist);
+	$("#summary").html(data.summary);
 }
 
