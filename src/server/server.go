@@ -140,13 +140,15 @@ func channelHandler(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	oldChannel := curChannel
 	curChannel = vars["channel"]
-	cv :=atomic.AddInt32(&channelVersion, 1)
-	fmt.Printf("channel will be changed: %v -> %v , new channel version: %v\n", oldChannel, curChannel, cv)
-	go loopPlay(curChannel, cv)
+	if oldChannel != curChannel {
+		cv :=atomic.AddInt32(&channelVersion, 1)
+		fmt.Printf("channel will be changed: %v -> %v , new channel version: %v\n", oldChannel, curChannel, cv)
+		go loopPlay(curChannel, cv)
+		done = make(chan bool, 1)
+		<- done
+		done <- true
+	}
 	t,_ := template.ParseFiles("res/tpls/channel.gtpl")
-	done = make(chan bool, 1)
-	<- done
-	done <- true
 	loadAlbumInfo()
 	t.Execute(w, curSong)
 }
@@ -173,6 +175,7 @@ func loopPlay(channel string, cv int32){
 					fmt.Printf("channel changed: %v -> %v\n", channel, curChannel)
 		//			goto outter
 				}
+				size =len(playlist.Song)
 				if curMusicIdx >= size {
 					break
 				}
@@ -195,6 +198,7 @@ var outPipe *bufio.Reader
 func play() error{
 	atomic.AddInt32(&songVersion, 1)
 	albumInfoLoaded=false
+	fmt.Printf("debug: curMusicIdx=%v\n", curMusicIdx)
 	curSong = playlist.Song[curMusicIdx]
 	done <- true
 	curMusicIdx ++
