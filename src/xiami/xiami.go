@@ -32,42 +32,42 @@ type Track struct{
 	Channel string
 }
 
-func (this Track) GetChannel() string{
+func (this *Track) GetChannel() string{
 	return this.Channel
 }
 
-func (this Track) GetTitle() string{
+func (this *Track) GetTitle() string{
 	return this.SongName
 }
 
-func (this Track) GetAlbumTitle() string{
+func (this *Track) GetAlbumTitle() string{
 	return this.AlbumName
 }
 
-func (this Track) GetAlbumCover() string{
+func (this *Track) GetAlbumCover() string{
 	return this.AlbumCover
 }
 
-func (this Track) GetArtistName() string{
+func (this *Track) GetArtistName() string{
 	return this.ArtistName
 }
 
-func (this Track) GetLink() string{
+func (this *Track) GetLink() string{
 	return this.Location
 }
 
-func (this PlayList) GetTracks() []player.Track{
+func (this *PlayList) GetTracks() []player.Track{
 	tracks := []player.Track{}
 	for _, track := range this.TrackList.Tracks {
-		track.Channel = this.Channel
-		tracks = append(tracks, track)
+		_track := track
+		_track.Channel = this.Channel
+		tracks = append(tracks, &_track)
 	}
 	return tracks
 }
 
-func (this PlayList) ReLoad() error {
+func (this *PlayList) ReLoad() error {
 	url := fmt.Sprintf(this.Channel,rand.Int63())
-	fmt.Printf("url:%v\n", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (this PlayList) ReLoad() error {
 	if err != nil {
 		return err
 	}
-	err = xml.Unmarshal(body, &this)
+	err = xml.Unmarshal(body, this)
 	if err != nil {
 		return err
 	}

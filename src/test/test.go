@@ -12,7 +12,7 @@ const (
 
 func main(){
 	go player.StartAndWait()
-	playList := xiami.PlayList{Channel:url}
+	playList := &xiami.PlayList{Channel:url}
 	err := playList.ReLoad()
 	if err != nil {
 		panic(err)
