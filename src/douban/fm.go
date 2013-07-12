@@ -1,29 +1,81 @@
 /* vim: se ts=2 sw=2 enc=utf-8: */
-package main
+package douban
 
 import (
-	"net/http"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"encoding/json"
+	"encoding/xml"
 )
 
-func chkErr(err interface{}){
-	if err !=nil {
-		panic(err)
-	}
+var(
+	AlbumInfoLoaded = false
+	CurSong Song
+)
+type PlayList struct {
+	R int
+	Song []Song
 }
 
-func main(){
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "http://douban.fm", nil)
-	chkErr(err)
-	req.Header.Add("Cookie",`flag="ok"; ac="1366708199"; bid="aLWYjC+lTZ0"; __utma=58778424.206407853.1366708203.1366708203.1366708203.1; __utmb=58778424.3.9.1366708235994; __utmc=58778424; __utmz=58778424.1366708203.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); dbcl2="40361056:9am1EervRqE"; fmNlogin="y"`)
-	req.Header.Add("Referer","http://douban.fm/")
-	req.Header.Add("User-Agent","Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31")
-	resp, err := client.Do(req)
-	chkErr(err)
+type Song struct {
+	Album string
+	Picture string
+	Ssid string
+	Artist string
+	Url string
+	Company string
+	Title string
+	Rating_avg float64
+	Length	int
+	Subtype string
+	Public_time string
+	Sid string
+	Aid string
+	Kbps string
+	Albumtitle string
+	Like int
+	AlbumInfo AlbumEntry
+}
+
+type AlbumEntry struct {
+    XMLName     xml.Name `xml:"entry"`
+    Summary string   `xml:"summary"`
+}
+
+func LoadAlbumInfo() error{
+	if(AlbumInfoLoaded){
+		return nil
+	}
+	url := fmt.Sprintf("http://api.douban.com/music/subject/%s",CurSong.Aid)
+	resp,err := http.Get(url)
+	if err!= nil {
+		return err
+	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	chkErr(err)
-	fmt.Println(string(body))
+	if err!= nil {
+		return err
+	}
+	err = xml.Unmarshal(body, &CurSong.AlbumInfo)
+	if err!= nil {
+		return err
+	}
+	AlbumInfoLoaded=true
+	return nil
 }
+
+func (this *PlayList) LoadPlayList(channel string) error{
+	url := fmt.Sprintf("http://douban.fm/j/mine/playlist?type=n&sid=&pt=0.0&channel=%s&from=mainsite&r=daab079b3c", channel)
+	resp,err := http.Get(url)
+	if err!= nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err!= nil {
+		return err
+	}
+	return json.Unmarshal(body, this)
+}
+
