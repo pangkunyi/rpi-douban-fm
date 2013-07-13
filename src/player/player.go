@@ -15,11 +15,14 @@ var (
 	outPipe *bufio.Reader
 	ch = make(chan int)
 	CurTrack Track
+	WillLoadNextChannel = false
+	running = make(chan bool, 1)
 )
 
 type PlayList interface {
 	GetTracks() []Track
 	ReLoad() error
+	GetChannel() string
 }
 
 type Track interface {
@@ -32,12 +35,32 @@ type Track interface {
 }
 
 func PlayListAndWait(playList PlayList, fn func(Track)) error {
-	for _, track := range playList.GetTracks() {
-		err := PlayTrackAndWait(track, fn)
+	if CurTrack != nil && playList.GetChannel() == CurTrack.GetChannel() {
+		return nil
+	}
+	CurTrack = nil
+	WillLoadNextChannel = true
+	Stop()
+	running <- true
+	WillLoadNextChannel = false
+	for {
+		err := playList.ReLoad()
 		if err != nil {
 			return err
 		}
+		for _, track := range playList.GetTracks() {
+			err := PlayTrackAndWait(track, fn)
+			if err != nil {
+				return err
+			}
+			if WillLoadNextChannel {
+				WillLoadNextChannel = false
+				goto outter
+			}
+		}
 	}
+	outter:
+	<- running
 	return nil
 }
 
@@ -79,6 +102,11 @@ func Stop() error {
 	}
 
 	return nil
+}
+
+func PlayNext() error{
+	WillLoadNextChannel = false
+	return Stop()
 }
 
 func process() {

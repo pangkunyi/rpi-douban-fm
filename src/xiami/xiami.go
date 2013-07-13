@@ -56,6 +56,10 @@ func (this *Track) GetLink() string{
 	return this.Location
 }
 
+func (this *PlayList) GetChannel() string {
+	return this.Channel
+}
+
 func (this *PlayList) GetTracks() []player.Track{
 	tracks := []player.Track{}
 	for _, track := range this.TrackList.Tracks {

@@ -7,11 +7,11 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <title>
         </title>
-        <link rel="stylesheet" href="https://s3.amazonaws.com/codiqa-cdn/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+        <link rel="stylesheet" href="/static/jquery.mobile-1.2.1.min.css" />
         <link rel="stylesheet" href="/static/my.css" />
-        <script src="https://s3.amazonaws.com/codiqa-cdn/jquery-1.7.2.min.js">
+        <script src="/static/jquery-1.8.3.min.js">
         </script>
-        <script src="https://s3.amazonaws.com/codiqa-cdn/mobile/1.2.0/jquery.mobile-1.2.0.min.js">
+        <script src="/static/jquery.mobile-1.2.1.min.js">
         </script>
         <script src="/static/my.js">
         </script>
@@ -20,14 +20,14 @@
         <!-- Home -->
 	<div data-role="page" id="playPage" data-cid="playPage" class="ui-page ui-body-a ui-page-footer-fixed" data-theme="a">
 		<div data-theme="a" data-role="header" data-cid="pageheader1" class="ui-sortable ui-header ui-bar-a ui-sortable-disabled" style="" role="banner">
-			<h3 data-cid="heading1" class="ui-title" role="heading" aria-level="1"><span id="songTitle">{{.Title}}</span>/<span id="artist">{{.Artist}}</span></h3>
+			<h3 data-cid="heading1" class="ui-title" role="heading" aria-level="1"><span id="songTitle">{{.Title}}</span>/<span id="artist">{{.ArtistName}}</span></h3>
 		</div>
 		<div data-role="content" style="padding: 0px;" data-cid="pagecontent1" class="ui-sortable ui-content ui-sortable-disabled" role="main">
 	<div style="" data-cid="image1">
-		<img style="width: 320px; height: 320px" id="songPic" src="{{.Picture}}">
+		<img style="width: 320px; height: 320px" id="songPic" src="{{.AlbumCover}}">
 	</div>
 	<div data-cid="text1">
-		<pre id="summary" style="overflow-wrap: break-word;">{{.AlbumInfo.Summary}} </pre>	
+		<pre id="summary" style="overflow-wrap: break-word;"> </pre>	
 	</div>
 
 		<div data-role="tabbar" data-iconpos="top" data-theme="a" data-cid="tabbar1" class="ui-footer ui-footer-fixed ui-bar-a ui-navbar ui-mini" role="navigation">

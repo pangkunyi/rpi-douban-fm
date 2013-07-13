@@ -7,15 +7,14 @@ import (
 	"net/http"
 	"encoding/json"
 	"encoding/xml"
+	"player"
+	"math/rand"
 )
 
-var(
-	AlbumInfoLoaded = false
-	CurSong Song
-)
 type PlayList struct {
 	R int
 	Song []Song
+	Channel string
 }
 
 type Song struct {
@@ -36,6 +35,7 @@ type Song struct {
 	Albumtitle string
 	Like int
 	AlbumInfo AlbumEntry
+	Channel string
 }
 
 type AlbumEntry struct {
@@ -43,11 +43,46 @@ type AlbumEntry struct {
     Summary string   `xml:"summary"`
 }
 
-func LoadAlbumInfo() error{
-	if(AlbumInfoLoaded){
-		return nil
+func (this *Song) GetChannel() string{
+	return this.Channel
+}
+
+func (this *Song) GetTitle() string{
+	return this.Title
+}
+
+func (this *Song) GetAlbumTitle() string{
+	return this.Album
+}
+
+func (this *Song) GetAlbumCover() string{
+	return this.Picture
+}
+
+func (this *Song) GetArtistName() string{
+	return this.Artist
+}
+
+func (this *Song) GetLink() string{
+	return this.Url
+}
+
+func (this *PlayList) GetChannel() string {
+	return this.Channel
+}
+
+func (this *PlayList) GetTracks() []player.Track{
+	tracks := []player.Track{}
+	for _, track := range this.Song {
+		_track := track
+		_track.Channel = this.Channel
+		tracks = append(tracks, &_track)
 	}
-	url := fmt.Sprintf("http://api.douban.com/music/subject/%s",CurSong.Aid)
+	return tracks
+}
+
+func (this *AlbumEntry) LoadAlbumInfo(albumId string) error{
+	url := fmt.Sprintf("http://api.douban.com/music/subject/%s", albumId)
 	resp,err := http.Get(url)
 	if err!= nil {
 		return err
@@ -57,16 +92,15 @@ func LoadAlbumInfo() error{
 	if err!= nil {
 		return err
 	}
-	err = xml.Unmarshal(body, &CurSong.AlbumInfo)
+	err = xml.Unmarshal(body, this)
 	if err!= nil {
 		return err
 	}
-	AlbumInfoLoaded=true
 	return nil
 }
 
-func (this *PlayList) LoadPlayList(channel string) error{
-	url := fmt.Sprintf("http://douban.fm/j/mine/playlist?type=n&sid=&pt=0.0&channel=%s&from=mainsite&r=daab079b3c", channel)
+func (this *PlayList) ReLoad() error{
+	url := fmt.Sprintf(this.Channel,rand.Int63())
 	resp,err := http.Get(url)
 	if err!= nil {
 		return err
