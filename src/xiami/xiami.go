@@ -98,6 +98,9 @@ func (this *PlayList) Decode() {
 func decode(loc string) string{
 	var _local10 int
 	size, _ := strconv.Atoi(loc[:1])
+	if size == 0 {
+		return ""
+	}
 	mainBody := loc[1:]
 	factor := int(len(mainBody) / size)
 	modFactor := len(mainBody) % size

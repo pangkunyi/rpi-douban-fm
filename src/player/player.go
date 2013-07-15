@@ -71,6 +71,9 @@ func PlayTrackAndWait(track Track, fn func(Track)) error {
 }
 
 func PlayAudioAndWait(audio string) error {
+	if audio == "" {
+		return nil
+	}
 	loadCmd :="l "+audio+"\n"
 	_, err := inPipe.Write([]byte(loadCmd))
 	if err !=nil {
