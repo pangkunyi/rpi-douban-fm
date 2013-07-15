@@ -99,6 +99,7 @@ func decode(loc string) string{
 	var _local10 int
 	size, _ := strconv.Atoi(loc[:1])
 	if size == 0 {
+		fmt.Printf("err track: %v", loc)
 		return ""
 	}
 	mainBody := loc[1:]

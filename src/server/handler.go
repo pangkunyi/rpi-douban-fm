@@ -90,31 +90,23 @@ func doubanChannelHandler(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	channel := fmt.Sprintf(douban_url,vars["channel"],"%v")
 	playList := &douban.PlayList{Channel:channel}
-	if player.CurTrack != nil && playList.GetChannel() == player.CurTrack.GetChannel() {
-		return
-	}
-	player.CurTrack = nil
-	go player.PlayListAndWait(playList, trackInspector)
-	for player.CurTrack == nil {
-		time.Sleep(1 * time.Second)
-	}
-	t,_ := template.ParseFiles("res/tpls/channel.gtpl")
-	var track Track
-	track.load(player.CurTrack)
-	t.Execute(w, track)
+	viewChannel(playList, w, r)
 }
 
 func xiamiChannelHandler(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	channel := fmt.Sprintf(xiami_url,vars["type"],vars["id"],"%v")
 	playList := &xiami.PlayList{Channel:channel}
-	if player.CurTrack != nil && playList.GetChannel() == player.CurTrack.GetChannel() {
-		return
-	}
-	player.CurTrack = nil
-	go player.PlayListAndWait(playList, trackInspector)
-	for player.CurTrack == nil {
-		time.Sleep(1 * time.Second)
+	viewChannel(playList, w, r)
+}
+
+func viewChannel(playList player.PlayList, w http.ResponseWriter, r *http.Request){
+	if player.CurTrack == nil || playList.GetChannel() != player.CurTrack.GetChannel() {
+		player.CurTrack = nil
+		go player.PlayListAndWait(playList, trackInspector)
+		for player.CurTrack == nil {
+			time.Sleep(1 * time.Second)
+		}
 	}
 	t,_ := template.ParseFiles("res/tpls/channel.gtpl")
 	var track Track
