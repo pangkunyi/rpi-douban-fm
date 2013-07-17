@@ -96,6 +96,10 @@ func (this *PlayList) Decode() {
 }
 
 func decode(loc string) string{
+	if len(loc) < 1 {
+		fmt.Printf("err track: %v", loc)
+		return ""
+	}
 	var _local10 int
 	size, _ := strconv.Atoi(loc[:1])
 	if size == 0 {
